@@ -26,6 +26,7 @@ function App() {
       <img src={movie.Poster} alt={movie.Title} />
       <h3>{movie.Title}</h3>
       <h3>{movie.Year}</h3>
+      <h3>{movie.Type}</h3>
     </Box>
   );
   if (inputText !== "") document.title = inputText;
