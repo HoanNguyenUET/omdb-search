@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   InputLabel,
   MenuItem,
   Stack,
@@ -10,14 +9,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import SearchIcon from "@mui/icons-material/Search";
 import FilmItem from "./FilmItem";
 
 const consecutiveYears = Array.from(
   { length: 2023 - 1900 + 1 },
-  (_, index) => 1900 + index
+  (_, index) => 2023 - index
 );
-consecutiveYears.unshift("None");
+consecutiveYears.unshift("Any");
 
 function App() {
   const [inputText, setInputText] = useState("");
@@ -29,8 +27,24 @@ function App() {
   const onInputChanged = (e) => {
     setInputText(e.target.value);
   };
-  const onSearchButtonClicked = () => {
-    if (inputText !== "") {
+
+  if (inputText !== "") document.title = inputText;
+  else document.title = "OMDb Search";
+
+  const [fromYear, setFromYear] = useState("Any");
+
+  useEffect(() => {
+    if (fromYear !== "Any") {
+      fetch(`${url}&y=${fromYear}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.Search === undefined) {
+            setMovies([]);
+          } else {
+            setMovies(data.Search);
+          }
+        });
+    } else {
       fetch(url)
         .then((res) => res.json())
         .then((data) => {
@@ -41,55 +55,10 @@ function App() {
           }
         });
     }
-  };
-
-  const mapMoviestoComponent = (movie, index) => (
-    <FilmItem film={movie} key={index} />
-  );
-
-  if (inputText !== "") document.title = inputText;
-  else document.title = "OMDb Search";
-
-  const [fromYear, setFromYear] = useState("None");
-
-  useEffect(() => {
-    if (fromYear !== "None") {
-      fetch(`${url}&y=${fromYear}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.Search === undefined) {
-            setMovies([]);
-          } else {
-            setMovies(data.Search);
-          }
-        });
-    }
   }, [fromYear, url]);
-  const handleYearFilterChange = (e) => {
-    setFromYear(e.target.value);
-  };
-  const renderYearFilter = () => {
+
+  const renderSearchTextfild = () => {
     return (
-      <Box sx={{ margin: "20px 0", maxWidth: 100 }}>
-        <FormControl fullWidth>
-          <InputLabel>From Year</InputLabel>
-          <Select
-            value={fromYear}
-            label="From Year"
-            onChange={handleYearFilterChange}
-          >
-            {consecutiveYears.map((value, index) => (
-              <MenuItem value={value} key={index}>
-                {value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-    );
-  };
-  return (
-    <>
       <Stack direction="row">
         <TextField
           focused
@@ -99,17 +68,45 @@ function App() {
           defaultValue={inputText}
           onChange={onInputChanged}
         />
-        <Button
-          variant="contained"
-          startIcon={<SearchIcon />}
-          onClick={onSearchButtonClicked}
-        >
-          Search
-        </Button>
       </Stack>
+    );
+  };
+  const handleYearFilterChange = (e) => {
+    setFromYear(e.target.value);
+  };
+
+  const renderYearFilter = () => {
+    return (
+      <>
+        <Box sx={{ margin: "20px 0", maxWidth: 100 }}>
+          <FormControl fullWidth>
+            <InputLabel>From Year</InputLabel>
+            <Select
+              value={fromYear}
+              label="From Year"
+              onChange={handleYearFilterChange}
+            >
+              {consecutiveYears.map((value, index) => (
+                <MenuItem value={value} key={index}>
+                  {value}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      </>
+    );
+  };
+
+  const mapMoviestoComponent = (movie, index) => (
+    <FilmItem film={movie} key={index} />
+  );
+  return (
+    <>
+      {renderSearchTextfild()}
       {renderYearFilter()}
       {movies.map(mapMoviestoComponent)}
-      {movies.length === 0 && <Typography>Movies not found</Typography>}
+      {movies.length === 0 && <Typography>No Result</Typography>}
     </>
   );
 }
