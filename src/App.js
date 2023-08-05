@@ -59,16 +59,15 @@ function App() {
 
   const renderSearchTextfild = () => {
     return (
-      <Stack direction="row">
-        <TextField
-          focused
-          label="Title:"
-          placeholder="Avengers,Batman,..."
-          variant="outlined"
-          defaultValue={inputText}
-          onChange={onInputChanged}
-        />
-      </Stack>
+      <TextField
+        sx={{ margin: "20px 0" }}
+        focused
+        label="Title:"
+        placeholder="Avengers,Batman,..."
+        variant="outlined"
+        defaultValue={inputText}
+        onChange={onInputChanged}
+      />
     );
   };
   const handleYearFilterChange = (e) => {
@@ -103,8 +102,11 @@ function App() {
   );
   return (
     <>
-      {renderSearchTextfild()}
-      {renderYearFilter()}
+      <Stack direction="row">
+        {renderSearchTextfild()}
+        {renderYearFilter()}
+      </Stack>
+
       {movies.map(mapMoviestoComponent)}
       {movies.length === 0 && <Typography>No Result</Typography>}
     </>
