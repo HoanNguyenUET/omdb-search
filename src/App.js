@@ -1,6 +1,7 @@
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
+import FilmItems from "./filmItems";
 
 function App() {
   const [inputText, setInputText] = useState("");
@@ -21,14 +22,8 @@ function App() {
         });
     }
   };
-  const mapMoviestoComponent = (movie, index) => (
-    <Box>
-      <img src={movie.Poster} alt={movie.Title} />
-      <h3>{movie.Title}</h3>
-      <h3>{movie.Year}</h3>
-      <h3>{movie.Type}</h3>
-    </Box>
-  );
+  const mapMoviestoComponent = (movie, index) => <FilmItems film={movie} />;
+
   if (inputText !== "") document.title = inputText;
   else document.title = "OMDb Search";
   return (
