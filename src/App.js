@@ -1,12 +1,11 @@
 import {
-  Box,
   InputLabel,
   MenuItem,
-  Stack,
   TextField,
   FormControl,
   Select,
   Typography,
+  Stack,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import FilmItem from "./FilmItem";
@@ -31,11 +30,12 @@ function App() {
   if (inputText !== "") document.title = inputText;
   else document.title = "OMDb Search";
 
-  const [fromYear, setFromYear] = useState("Any");
+  const [yearReleased, setYearReleased] = useState("Any");
+  const [sortOption, setSortOption] = useState("None");
 
   useEffect(() => {
-    if (fromYear !== "Any") {
-      fetch(`${url}&y=${fromYear}`)
+    if (yearReleased !== "Any") {
+      fetch(`${url}&y=${yearReleased}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.Search === undefined) {
@@ -55,13 +55,20 @@ function App() {
           }
         });
     }
-  }, [fromYear, url]);
-
+  }, [yearReleased, url]);
+  useEffect(() => {
+    let sortedFilms = [...movies];
+    if (sortOption === "Year") {
+      sortedFilms.sort((a, b) => b.Year - a.Year);
+    } else if (sortOption === "Title") {
+      sortedFilms.sort((a, b) => a.Title.localeCompare(b.Title));
+    }
+    setMovies(sortedFilms);
+  }, [sortOption, movies]);
   const renderSearchTextfild = () => {
     return (
       <TextField
-        sx={{ margin: "20px 0" }}
-        focused
+        sx={{ margin: "10px 2px" }}
         label="Title:"
         placeholder="Avengers,Batman,..."
         variant="outlined"
@@ -71,29 +78,43 @@ function App() {
     );
   };
   const handleYearFilterChange = (e) => {
-    setFromYear(e.target.value);
+    setYearReleased(e.target.value);
   };
 
   const renderYearFilter = () => {
     return (
       <>
-        <Box sx={{ margin: "20px 0", maxWidth: 100 }}>
-          <FormControl fullWidth>
-            <InputLabel>From Year</InputLabel>
-            <Select
-              value={fromYear}
-              label="From Year"
-              onChange={handleYearFilterChange}
-            >
-              {consecutiveYears.map((value, index) => (
-                <MenuItem value={value} key={index}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+        <FormControl fullWidth sx={{ margin: "10px 2px", maxWidth: 110 }}>
+          <InputLabel>Year Released</InputLabel>
+          <Select
+            value={yearReleased}
+            label="Year Released"
+            onChange={handleYearFilterChange}
+          >
+            {consecutiveYears.map((value, index) => (
+              <MenuItem value={value} key={index}>
+                {value}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </>
+    );
+  };
+
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+  };
+  const renderMoviesSorter = () => {
+    return (
+      <FormControl fullWidth sx={{ margin: "10px 2px", maxWidth: 120 }}>
+        <InputLabel>Sort by</InputLabel>
+        <Select value={sortOption} label="Sort by" onChange={handleSortChange}>
+          <MenuItem value={"None"}>None</MenuItem>
+          <MenuItem value={"Year"}>Year</MenuItem>
+          <MenuItem value={"Title"}>Title</MenuItem>
+        </Select>
+      </FormControl>
     );
   };
 
@@ -102,11 +123,11 @@ function App() {
   );
   return (
     <>
+      {renderSearchTextfild()}
       <Stack direction="row">
-        {renderSearchTextfild()}
         {renderYearFilter()}
+        {renderMoviesSorter()}
       </Stack>
-
       {movies.map(mapMoviestoComponent)}
       {movies.length === 0 && <Typography>No Result</Typography>}
     </>
