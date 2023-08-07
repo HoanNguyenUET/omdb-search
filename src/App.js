@@ -6,15 +6,11 @@ import {
   Select,
   Typography,
   Stack,
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import FilmItem from "./FilmItem";
-
-const consecutiveYears = Array.from(
-  { length: 2023 - 1900 + 1 },
-  (_, index) => 2023 - index
-);
-consecutiveYears.unshift("Any");
+import SearchIcon from "@mui/icons-material/Search";
 
 function App() {
   const [inputText, setInputText] = useState("");
@@ -22,7 +18,7 @@ function App() {
   const baseurl = "http://www.omdbapi.com";
   const apiKey = "939bff44";
   const url = `${baseurl}/?apikey=${apiKey}&s=${inputText}`;
-
+  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const onInputChanged = (e) => {
     setInputText(e.target.value);
   };
@@ -34,28 +30,28 @@ function App() {
   const [sortOption, setSortOption] = useState("None");
 
   useEffect(() => {
-    if (yearReleased !== "Any") {
-      fetch(`${url}&y=${yearReleased}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.Search === undefined) {
-            setMovies([]);
-          } else {
-            setMovies(data.Search);
-          }
-        });
-    } else {
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.Search === undefined) {
-            setMovies([]);
-          } else {
-            setMovies(data.Search);
-          }
-        });
-    }
-  }, [yearReleased, url]);
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.Search === undefined) {
+          setMovies([]);
+        } else {
+          setMovies(data.Search);
+        }
+      });
+  }, [url]);
+  if (searchButtonClicked === true) {
+    fetch(`${url}&y=${yearReleased}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.Search === undefined) {
+          setMovies([]);
+        } else {
+          setMovies(data.Search);
+        }
+      });
+    setSearchButtonClicked(false);
+  }
   useEffect(() => {
     let sortedFilms = [...movies];
     if (sortOption === "Year") {
@@ -65,7 +61,8 @@ function App() {
     }
     setMovies(sortedFilms);
   }, [sortOption, movies]);
-  const renderSearchTextfild = () => {
+
+  const renderSearchTextfield = () => {
     return (
       <TextField
         sx={{ margin: "10px 2px" }}
@@ -77,6 +74,7 @@ function App() {
       />
     );
   };
+
   const handleYearFilterChange = (e) => {
     setYearReleased(e.target.value);
   };
@@ -84,20 +82,18 @@ function App() {
   const renderYearFilter = () => {
     return (
       <>
-        <FormControl fullWidth sx={{ margin: "10px 2px", maxWidth: 110 }}>
-          <InputLabel>Year Released</InputLabel>
-          <Select
-            value={yearReleased}
-            label="Year Released"
-            onChange={handleYearFilterChange}
-          >
-            {consecutiveYears.map((value, index) => (
-              <MenuItem value={value} key={index}>
-                {value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <TextField
+          label="Year Release"
+          type="number"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          placeholder="2023"
+          value={yearReleased}
+          onChange={handleYearFilterChange}
+          fullWidth
+          sx={{ margin: "10px 2px", maxWidth: 120 }}
+        />
       </>
     );
   };
@@ -117,17 +113,33 @@ function App() {
       </FormControl>
     );
   };
+  const onSearchButtonClicked = () => {
+    setSearchButtonClicked(true);
+  };
+  const renderSearchButton = () => {
+    return (
+      <Button
+        variant="contained"
+        startIcon={<SearchIcon />}
+        sx={{ width: 230, margin: "10px 2px" }}
+        onClick={onSearchButtonClicked}
+      >
+        Search
+      </Button>
+    );
+  };
 
   const mapMoviestoComponent = (movie, index) => (
     <FilmItem film={movie} key={index} />
   );
   return (
     <>
-      {renderSearchTextfild()}
+      {renderSearchTextfield()}
       <Stack direction="row">
         {renderYearFilter()}
         {renderMoviesSorter()}
       </Stack>
+      {renderSearchButton()}
       {movies.map(mapMoviestoComponent)}
       {movies.length === 0 && <Typography>No Result</Typography>}
     </>
