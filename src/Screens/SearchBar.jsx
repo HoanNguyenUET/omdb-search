@@ -11,8 +11,9 @@ import {
 import { useEffect, useState } from "react";
 import FilmItem from "./FilmItem";
 import SearchIcon from "@mui/icons-material/Search";
+import React from "react";
 
-function App() {
+const SearchBar = () => {
   const [inputText, setInputText] = useState("");
   const [movies, setMovies] = useState([]);
   const baseurl = "http://www.omdbapi.com";
@@ -26,7 +27,7 @@ function App() {
   if (inputText !== "") document.title = inputText;
   else document.title = "OMDb Search";
 
-  const [yearReleased, setYearReleased] = useState("Any");
+  const [yearReleased, setYearReleased] = useState();
   const [sortOption, setSortOption] = useState("None");
 
   useEffect(() => {
@@ -103,7 +104,11 @@ function App() {
   };
   const renderMoviesSorter = () => {
     return (
-      <FormControl fullWidth sx={{ margin: "10px 2px", maxWidth: 120 }}>
+      <FormControl
+        fullWidth
+        sx={{ margin: "10px 2px", maxWidth: 120 }}
+        id="movie-sorter"
+      >
         <InputLabel>Sort by</InputLabel>
         <Select value={sortOption} label="Sort by" onChange={handleSortChange}>
           <MenuItem value={"None"}>None</MenuItem>
@@ -134,8 +139,8 @@ function App() {
   );
   return (
     <>
-      {renderSearchTextfield()}
       <Stack direction="row">
+        {renderSearchTextfield()}
         {renderYearFilter()}
         {renderMoviesSorter()}
       </Stack>
@@ -144,6 +149,6 @@ function App() {
       {movies.length === 0 && <Typography>No Result</Typography>}
     </>
   );
-}
+};
 
-export default App;
+export default SearchBar;
