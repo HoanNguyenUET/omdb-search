@@ -1,6 +1,6 @@
-import { Box } from "@mui/material";
-import { Link } from "react-router-dom";
-
+import { Box } from '@mui/material';
+import { Link } from 'react-router-dom';
+import './Styles/FilmItem.css';
 const FilmItem = ({ film }) => {
   const id = film.imdbID;
 
